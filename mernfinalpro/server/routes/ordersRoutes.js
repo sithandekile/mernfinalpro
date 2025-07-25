@@ -1,11 +1,11 @@
 // ==================== ROUTES/ORDERROUTES.JS ====================
 const express = require('express');
 const router = express.Router();
-const orderController = require('../controllers/orderController');
-const auth = require('../middleware/auth');
+const orderController = require('../controllers/ordersController');
+const {authenticate} = require('../middleware/auth');
 
 // All routes require authentication
-router.use(auth);
+router.use(authenticate);
 
 router.post('/', orderController.createOrder);
 router.get('/', orderController.getUserOrders);

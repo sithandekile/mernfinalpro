@@ -1,10 +1,9 @@
-// Checkout Component
+import React, { useState } from 'react';
 import { useCart } from '../context/cartContext.jsx';
-import { apiService } from '../services/apiService';
-import {useState} from 'react';
+// import apiService from '../path/to/api'; // <-- adjust this import path accordingly
 
-export const Checkout = () =>{
-  const { cartItems, setCartItems, setCurrentPage } = useCart()
+export const Checkout = () => {
+  const { cartItems, setCartItems, setCurrentPage } = useCart();
   const [deliveryOption, setDeliveryOption] = useState('delivery');
   const [formData, setFormData] = useState({
     email: '',
@@ -22,22 +21,29 @@ export const Checkout = () =>{
   const handleSubmit = async (e) => {
     e.preventDefault();
     setProcessing(true);
-    
     try {
+      // Call your apiService's method to process payment/order creation
+      // If you don't have processPayment defined, see note below to add it.
       const result = await apiService.processPayment({
         items: cartItems,
         deliveryOption,
         customerInfo: formData,
         total
       });
-      
+
       if (result.success) {
         setCartItems([]);
-        alert(`Order placed successfully! Order ID: ${result.orderId}\n\nYour payment is held in escrow and will be released after delivery confirmation.`);
+        alert(
+          `Order placed successfully! Order ID: ${result.orderId}\n\n` +
+          `Your payment is held in escrow and will be released after delivery confirmation.`
+        );
         setCurrentPage('orders');
+      } else {
+        alert('Payment failed. Please try again.');
       }
     } catch (error) {
       alert('Payment failed. Please try again.');
+      console.error('Checkout error:', error);
     } finally {
       setProcessing(false);
     }
@@ -47,7 +53,7 @@ export const Checkout = () =>{
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -57,31 +63,31 @@ export const Checkout = () =>{
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input 
+                    <input
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input 
+                    <input
                       type="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input 
+                    <input
                       type="tel"
                       required
                       value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
@@ -93,7 +99,7 @@ export const Checkout = () =>{
                 <h2 className="text-xl font-semibold mb-4">Delivery Options</h2>
                 <div className="space-y-4">
                   <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input 
+                    <input
                       type="radio"
                       name="delivery"
                       value="delivery"
@@ -107,7 +113,7 @@ export const Checkout = () =>{
                     </div>
                   </label>
                   <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input 
+                    <input
                       type="radio"
                       name="delivery"
                       value="pickup"
@@ -121,26 +127,26 @@ export const Checkout = () =>{
                     </div>
                   </label>
                 </div>
-                
+
                 {deliveryOption === 'delivery' && (
                   <div className="mt-4 space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                      <input 
+                      <input
                         type="text"
                         required
                         value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                      <input 
+                      <input
                         type="text"
                         required
                         value={formData.city}
-                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       />
                     </div>
@@ -159,26 +165,26 @@ export const Checkout = () =>{
                 </div>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={processing}
                 className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-colors"
               >
-                {processing ? 'Processing...' : `Place Order - ${total}`}
+                {processing ? 'Processing...' : `Place Order - $${total}`}
               </button>
             </form>
           </div>
-          
+
           {/* Order Summary */}
           <div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
-              
+
               <div className="space-y-4 mb-6">
-                {cartItems.map(item => (
+                {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center">
-                    <img 
-                      src={item.image} 
+                    <img
+                      src={item.image}
                       alt={item.name}
                       className="w-12 h-12 object-cover rounded-lg mr-3"
                     />
@@ -190,7 +196,7 @@ export const Checkout = () =>{
                   </div>
                 ))}
               </div>
-              
+
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -214,6 +220,3 @@ export const Checkout = () =>{
     </div>
   );
 };
-
-
-

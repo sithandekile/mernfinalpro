@@ -1,8 +1,12 @@
-const mongoose=require('mongoose')
-const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  firstName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  lastName: {
     type: String,
     required: true,
     trim: true
@@ -28,6 +32,10 @@ const userSchema = new mongoose.Schema({
     city: String,
     state: String,
     zipCode: String
+  },
+  avatar: {
+    type: String,
+    default: ''
   },
   role: {
     type: String,
@@ -58,22 +66,17 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
-
 // Generate referral code
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.referralCode) {
     this.referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   }
   next();
 });
 
-userSchema.methods.comparePassword = async function(candidatePassword) {
+// Compare password method
+const bcrypt = require('bcrypt');
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 

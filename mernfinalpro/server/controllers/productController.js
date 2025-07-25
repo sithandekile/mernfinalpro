@@ -1,6 +1,5 @@
 // ==================== CONTROLLERS/PRODUCTCONTROLLER.JS
 const Product = require('../models/products');
-const User = require('../models/User');
 
 const productController = {
   // Get all approved products with filtering
@@ -39,7 +38,7 @@ const productController = {
 
       if (search) {
         filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
+          { title: { $regex: search, $options: 'i' } },  // Changed 'name' to 'title'
           { description: { $regex: search, $options: 'i' } }
         ];
       }
@@ -142,7 +141,7 @@ const productController = {
       const products = await Product.find({
         status: 'approved',
         isVerified: true,
-        qualityScore: { $gte: 8 }
+        qualityScore: { $gte: 4 }
       })
       .populate('seller', 'firstName lastName rating')
       .sort({ qualityScore: -1, views: -1 })
@@ -188,6 +187,3 @@ const productController = {
 };
 
 module.exports = productController;
-
-
-

@@ -1,4 +1,4 @@
-// models/Product.js
+// models/products.js
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
@@ -70,6 +70,11 @@ const productSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
   isAvailable: {
     type: Boolean,
     default: true
@@ -125,5 +130,3 @@ productSchema.index({ category: 1, condition: 1, price: 1 });
 productSchema.index({ isAvailable: 1, isVerified: 1 });
 
 module.exports = mongoose.model('Product', productSchema);
-
-

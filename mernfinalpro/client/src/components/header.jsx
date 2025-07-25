@@ -38,6 +38,13 @@ const { cartItems, currentPage, setCurrentPage, isMobileMenuOpen, setIsMobileMen
             >
               How It Works
             </button>
+
+            <button 
+              onClick={() => setCurrentPage('dashboard')}
+              className={`${currentPage === 'dashboard' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+            >
+              Dashboard
+            </button>
             <button 
               onClick={() => setCurrentPage('referral')}
               className={`${currentPage === 'referral' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}

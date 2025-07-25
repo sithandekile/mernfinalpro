@@ -1,9 +1,9 @@
-// controllers/userController.js
 const User = require('../models/User');
 const Referral = require('../models/referral');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
-// Generate token function
+// Generate token
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET || 'your-secret-key', {
     expiresIn: '30d'
@@ -11,7 +11,7 @@ const generateToken = (userId) => {
 };
 
 const userController = {
-  // ======================= REGISTER =======================
+  // ========== REGISTER ==========
   register: async (req, res) => {
     try {
       const {
@@ -21,6 +21,7 @@ const userController = {
         phone,
         password,
         address,
+        avatar,
         referralCode
       } = req.body;
 
@@ -33,14 +34,18 @@ const userController = {
         });
       }
 
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 12);
+
       // Setup new user
       const user = new User({
         firstName,
         lastName,
         email,
         phone,
-        password,
-        address
+        password: hashedPassword,
+        address,
+        avatar
       });
 
       // Handle referral code
@@ -55,7 +60,7 @@ const userController = {
 
         user.referredBy = referrer._id;
 
-        // Save new user before referral creation
+        // Save new user
         await user.save();
 
         // Create referral record
@@ -66,14 +71,13 @@ const userController = {
         });
         await referral.save();
 
-        // Update referrer’s referral list
+        // Update referrer
         referrer.referrals.push(user._id);
         await referrer.save();
       } else {
         await user.save();
       }
 
-      // Token generation
       const token = generateToken(user._id);
 
       return res.status(201).json({
@@ -86,7 +90,7 @@ const userController = {
             lastName: user.lastName,
             email: user.email,
             role: user.role,
-            storeCredit: user.storeCredit,
+            storeCredits: user.storeCredits,
             referralCode: user.referralCode
           },
           token
@@ -102,7 +106,7 @@ const userController = {
     }
   },
 
-  // ======================= LOGIN =======================
+  // ========== LOGIN ==========
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -135,7 +139,7 @@ const userController = {
             lastName: user.lastName,
             email: user.email,
             role: user.role,
-            storeCredit: user.storeCredit,
+            storeCredits: user.storeCredits,
             referralCode: user.referralCode
           },
           token
@@ -150,7 +154,7 @@ const userController = {
     }
   },
 
-  // ======================= GET PROFILE =======================
+  // ========== GET PROFILE ==========
   getProfile: async (req, res) => {
     try {
       const user = await User.findById(req.user.id).select('-password');
@@ -167,7 +171,7 @@ const userController = {
     }
   },
 
-  // ======================= UPDATE PROFILE =======================
+  // ========== UPDATE PROFILE ==========
   updateProfile: async (req, res) => {
     try {
       const allowedUpdates = ['firstName', 'lastName', 'phone', 'address', 'avatar'];
@@ -199,7 +203,7 @@ const userController = {
     }
   },
 
-  // ======================= GET STORE CREDIT =======================
+  // ========== GET STORE CREDIT ==========
   getStoreCredit: async (req, res) => {
     try {
       const user = await User.findById(req.user.id);
@@ -207,7 +211,7 @@ const userController = {
       return res.json({
         success: true,
         data: {
-          storeCredit: user.storeCredit
+          storeCredits: user.storeCredits
         }
       });
     } catch (error) {

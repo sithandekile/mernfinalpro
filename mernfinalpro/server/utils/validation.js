@@ -2,7 +2,8 @@
 const { body, validationResult } = require('express-validator');
 
 const validateRegistration = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('firstName').trim().notEmpty().withMessage('Name is required'),
+  body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('phone').optional().isMobilePhone().withMessage('Valid phone number required')

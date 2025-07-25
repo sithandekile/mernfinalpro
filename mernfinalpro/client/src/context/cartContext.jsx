@@ -27,7 +27,7 @@ export function CartProvider({ children }) {
     <CartContext.Provider value={{
       cartItems,
       setCartItems,
-      onAddToCart, // 👈 renamed to match usage
+      onAddToCart, 
       currentPage,
       setCurrentPage,
       isMobileMenuOpen,

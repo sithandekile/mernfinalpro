@@ -1,21 +1,31 @@
-// Homepage Component
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronRight, Shield, CheckCircle, Gift } from 'lucide-react';
 import { ProductCard } from '../components/productCard';
-import { apiService } from '../services/apiService';
+import apiService from '../services/api';
 import { useCart } from '../context/cartContext';
-import React from 'react'
-
 
 export const Homepage = () => {
-  const{ setCurrentPage, onAddToCart }=useCart();
+  const { setCurrentPage, onAddToCart } = useCart();
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    apiService.getProducts().then(products => {
-      setFeaturedProducts(products.slice(0, 3));
-    });
-  }, []);
+  const fetchProducts = async () => {
+    try {
+      const response = await apiService.getFeaturedProducts(3);
+      setFeaturedProducts(response.data); // ✅ only the array
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Failed to load featured products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, []);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,7 +39,7 @@ export const Homepage = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Every product is admin-verified with quality ratings. Shop with confidence using our secure escrow system.
           </p>
-          <button 
+          <button
             onClick={() => setCurrentPage('shop')}
             className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors inline-flex items-center"
           >
@@ -39,7 +49,7 @@ export const Homepage = () => {
         </div>
       </section>
 
-      {/* Trust Indicators */}
+{/* Trust Indicators */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -73,7 +83,7 @@ export const Homepage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Refer Friends, Earn Credits!</h2>
           <p className="text-orange-100 mb-6">Get $25 store credit for every friend who makes their first purchase.</p>
-          <button 
+          <button
             onClick={() => setCurrentPage('referral')}
             className="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
           >
@@ -86,24 +96,33 @@ export const Homepage = () => {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAddToCart={onAddToCart}
-                onViewDetails={(product) => setCurrentPage(`product-${product.id}`)}
-              />
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <button 
-              onClick={() => setCurrentPage('shop')}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-            >
-              View All Products
-            </button>
-          </div>
+
+          {loading ? (
+            <div className="text-center text-gray-500">Loading products...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredProducts.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={onAddToCart}
+                    onViewDetails={() => setCurrentPage(`product-${product.id}`)}
+                  />
+                ))}
+              </div>
+              <div className="text-center mt-12">
+                <button
+                  onClick={() => setCurrentPage('shop')}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  View All Products
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </div>
