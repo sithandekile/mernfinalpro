@@ -11,7 +11,7 @@ import {
 const DashboardStats = ({ stats }) => {
   if (!stats) return (
     <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
     </div>
   );
 
@@ -38,7 +38,7 @@ const DashboardStats = ({ stats }) => {
         <div>
           <p className="text-sm text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
-          <p className="text-sm text-green-600 mt-1">
+          <p className="text-sm text-sky-600 mt-1">
             <span className="inline-flex items-center">
               <TrendingUp className="w-4 h-4 mr-1" />
               {trend}
@@ -55,7 +55,7 @@ const DashboardStats = ({ stats }) => {
   // Recent activity item component
   const ActivityItem = ({ activity }) => {
     const statusConfig = {
-      completed: { bg: 'bg-green-100', icon: <CheckCircle className="w-5 h-5 text-green-600" /> },
+      completed: { bg: 'bg-sky-100', icon: <CheckCircle className="w-5 h-5 text-sky-600" /> },
       pending: { bg: 'bg-yellow-100', icon: <Clock className="w-5 h-5 text-yellow-600" /> },
       default: { bg: 'bg-blue-100', icon: <Truck className="w-5 h-5 text-blue-600" /> }
     };
@@ -95,7 +95,7 @@ const DashboardStats = ({ stats }) => {
         <StatCard 
           title="Total Orders" 
           value={stats.overview.totalOrders} 
-          icon={<div className="bg-green-50"><ShoppingCart className="w-6 h-6 text-green-600" /></div>}
+          icon={<div className="bg-sky-50"><ShoppingCart className="w-6 h-6 text-sky-600" /></div>}
           trend="+8% from last month"
         />
         
@@ -125,7 +125,7 @@ const DashboardStats = ({ stats }) => {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="revenue" fill="#10B981" radius={4} />
+              <Bar dataKey="revenue" fill="#057791ff" radius={4} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -75,7 +75,7 @@ userSchema.pre('save', async function (next) {
 });
 
 // Compare password method
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };

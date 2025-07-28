@@ -1,12 +1,12 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const {userController, register} = require('../controllers/userController');
 const { validateRegistration, validateLogin, handleValidationErrors } = require('../utils/validation');
 const { authenticate } = require('../middleware/auth');
 
 // Public routes
-router.post('/register',validateRegistration, handleValidationErrors, userController.register);
+router.post('/register',validateRegistration, handleValidationErrors, register);
 router.post('/login',validateLogin, handleValidationErrors, userController.login);
 
 // Protected routes

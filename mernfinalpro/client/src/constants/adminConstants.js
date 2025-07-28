@@ -12,10 +12,10 @@ export const CATEGORIES = [
 ];
 
 export const CONDITIONS = [
-  { value: 'New', label: 'New' },
-  { value: 'Excellent', label: 'Excellent' },
-  { value: 'Good', label: 'Good' },
-  { value: 'Fair', label: 'Fair' }
+  { value: 'new', label: 'New' },
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Good' },
+  { value: 'fair', label: 'Fair' }
 ];
 
 export const DELIVERY_OPTIONS = [

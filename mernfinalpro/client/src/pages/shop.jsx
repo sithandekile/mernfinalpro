@@ -11,20 +11,17 @@ export const ShopPage = () => {
     category: 'All',
     condition: 'All',
     priceRange: 'All',
+    status: "approved"
   });
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const data = await apiService.getProducts(filters);
-        const receivedProducts = Array.isArray(data)
-          ? data
-          : data?.products || [];
-        setProducts(receivedProducts);
+        const result = await apiService.getProducts(filters);
+        setProducts(result.data);
       } catch (error) {
         console.error('Error fetching products:', error);
-        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -117,30 +114,29 @@ export const ShopPage = () => {
               </div>
             ))}
           </div>
-        ) : filteredProducts.length === 0 ? (
+        ) : products.length === 0 ? (
           <p className="text-center text-gray-500">No products found matching your filters.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
+            {products.map((product) => (
               <div
                 key={product.id || product._id}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition"
                 onClick={() => setCurrentPage(`product-${product.id || product._id}`)}
               >
                 <img
-                  src={product.image || product.imageUrl}
-                  alt={product.name}
+                  src={product.images?.[0]}
+                  alt={product.title}
                   className="w-full h-48 object-cover rounded-t-xl"
                 />
                 <div className="p-4">
-                  <h2 className="text-lg font-semibold text-gray-900">{product.name}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">{product.title}</h2>
                   <p className="text-gray-600 mt-1 line-clamp-2">{product.description}</p>
                   <p className="mt-2 text-purple-700 font-bold text-lg">${product.price}</p>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddToCart(product);
-                    }}
+                    onClick={() =>
+                      onAddToCart(product)
+                    }
                     className="mt-4 w-full bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition"
                   >
                     Add to Cart
@@ -151,6 +147,6 @@ export const ShopPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };

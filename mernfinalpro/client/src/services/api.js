@@ -1,14 +1,41 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Interceptors
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 class ApiService {
   constructor() {
-    this.baseURL = API_BASE_URL;
     this.token = localStorage.getItem('token');
   }
 
-  // Set authorization token
   setToken(token) {
     this.token = token;
     if (token) {
@@ -18,24 +45,17 @@ class ApiService {
     }
   }
 
-  // Get authorization headers
   getHeaders(contentType = 'application/json') {
-    const headers = {
-      'Content-Type': contentType,
-    };
-
-  const token = this.token || localStorage.getItem('token');
+    const headers = { 'Content-Type': contentType };
+    const token = this.token || localStorage.getItem('token');
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
-
-
     return headers;
   }
 
-  // Generic request method using Axios
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
+    const url = `${api.defaults.baseURL}${endpoint}`;
     const method = options.method || 'GET';
     const headers = this.getHeaders();
 
@@ -56,12 +76,11 @@ class ApiService {
     }
   }
 
-  // GET
+  // ==== CRUD Methods ====
   async get(endpoint, params) {
     return this.request(endpoint, { method: 'GET', params });
   }
 
-  // POST
   async post(endpoint, data) {
     return this.request(endpoint, {
       method: 'POST',
@@ -69,7 +88,6 @@ class ApiService {
     });
   }
 
-  // PUT
   async put(endpoint, data) {
     return this.request(endpoint, {
       method: 'PUT',
@@ -77,12 +95,11 @@ class ApiService {
     });
   }
 
-  // DELETE
   async delete(endpoint) {
     return this.request(endpoint, { method: 'DELETE' });
   }
 
-  // ===== USER AUTHENTICATION =====
+  // ==== Authentication ====
   async register(userData) {
     return this.post('/users/register', userData);
   }
@@ -107,7 +124,7 @@ class ApiService {
     return this.get('/users/store-credit');
   }
 
-  // ===== PRODUCTS =====
+  // ==== Products ====
   async getProducts(params = {}) {
     return this.get('/products', params);
   }
@@ -120,7 +137,7 @@ class ApiService {
     return this.get('/products/featured', { limit });
   }
 
-  async getProductsByCategory(category, limit = 8) {
+  async getProductsByCategory(category, limit = 4) {
     return this.get(`/products/category/${category}`, { limit });
   }
 
@@ -128,7 +145,7 @@ class ApiService {
     return this.post('/products', productData);
   }
 
-  // ===== ORDERS =====
+  // ==== Orders ====
   async createOrder(orderData) {
     return this.post('/orders', orderData);
   }
@@ -149,7 +166,7 @@ class ApiService {
     return this.put(`/orders/${id}/confirm-delivery`);
   }
 
-  // ===== REFERRALS =====
+  // ==== Referrals ====
   async getReferralStats() {
     return this.get('/referrals/stats');
   }
@@ -158,22 +175,19 @@ class ApiService {
     return this.get('/referrals/info');
   }
 
-  async applyReferralCode(referralData) {
-    return this.post('/referrals/apply', referralData);
+  async applyReferralCode(data) {
+    return this.post('/referrals/apply', data);
   }
 
   async completeReferral(data) {
     return this.post('/referrals/complete', data);
   }
 
-  // ===== ADMIN FUNCTIONS =====
-  
-  // Dashboard Stats
+  // ==== Admin ====
   async getDashboardStats() {
     return this.get('/admin/dashboard/stats');
   }
 
-  // Product Management
   async getAllProducts(params = {}) {
     return this.get('/admin/products', params);
   }
@@ -186,7 +200,6 @@ class ApiService {
     return this.delete(`/admin/products/${id}`);
   }
 
-  // Legacy product approval (if still needed)
   async getPendingProducts(params = {}) {
     return this.get('/admin/products/pending', params);
   }
@@ -199,7 +212,6 @@ class ApiService {
     return this.put(`/admin/products/${id}/reject`, rejectionData);
   }
 
-  // Order Management
   async getAllOrders(params = {}) {
     return this.get('/admin/orders', params);
   }
@@ -208,7 +220,6 @@ class ApiService {
     return this.put(`/admin/orders/${id}/status`, statusData);
   }
 
-  // User Management
   async getAllUsers(params = {}) {
     return this.get('/admin/users', params);
   }
@@ -217,7 +228,7 @@ class ApiService {
     return this.put(`/admin/users/${id}/status`, statusData);
   }
 
-  // ===== UTILITY =====
+  // ==== Utility ====
   logout() {
     this.setToken(null);
   }
@@ -226,11 +237,9 @@ class ApiService {
     return !!this.token;
   }
 
-  // Get current user role (you might need to decode JWT or store role separately)
   getUserRole() {
     if (!this.token) return null;
     try {
-      // Decode JWT token to get user role
       const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.role || 'user';
     } catch (error) {
@@ -244,5 +253,6 @@ class ApiService {
   }
 }
 
+// Export an instance
 const apiService = new ApiService();
 export default apiService;

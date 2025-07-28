@@ -1,61 +1,61 @@
-
-// Header Component
 import { ShoppingCart, Shield, Menu, X } from 'lucide-react';
 import { useCart } from '../context/cartContext';
+import { Link, useLocation } from 'react-router-dom';
 
-export const Header = ()=>{
-const { cartItems, currentPage, setCurrentPage, isMobileMenuOpen, setIsMobileMenuOpen } =useCart();
+export const Header = () => {
+  const { cartItems, isMobileMenuOpen, setIsMobileMenuOpen } = useCart();
+  const location = useLocation();
+
+  const isActive = (path) =>
+    location.pathname === path ? 'text-orange-600' : 'text-gray-700';
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <button 
-              onClick={() => setCurrentPage('home')}
-              className="text-2xl font-bold text-orange-600"
-            >
+            <Link to="/" className="text-2xl font-bold text-orange-600">
               SafeSwap Local
-            </button>
+            </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <button 
-              onClick={() => setCurrentPage('home')}
-              className={`${currentPage === 'home' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+            <Link
+              to="/"
+              className={`${isActive('/')} hover:text-orange-600 transition-colors`}
             >
               Home
-            </button>
-            <button 
-              onClick={() => setCurrentPage('shop')}
-              className={`${currentPage === 'shop' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+            </Link>
+            <Link
+              to="/shop"
+              className={`${isActive('/shop')} hover:text-orange-600 transition-colors`}
             >
               Shop
-            </button>
-            <button 
-              onClick={() => setCurrentPage('how-it-works')}
-              className={`${currentPage === 'how-it-works' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+            </Link>
+            <Link
+              to="/how-it-works"
+              className={`${isActive('/how-it-works')} hover:text-orange-600 transition-colors`}
             >
               How It Works
-            </button>
-
-            <button 
-              onClick={() => setCurrentPage('dashboard')}
-              className={`${currentPage === 'dashboard' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+            </Link>
+            <Link
+              to="/register"
+              className={`${isActive('/register')} hover:text-orange-600 transition-colors`}
             >
-              Dashboard
-            </button>
-            <button 
-              onClick={() => setCurrentPage('referral')}
-              className={`${currentPage === 'referral' ? 'text-orange-600' : 'text-gray-700'} hover:text-orange-600 transition-colors`}
+              Register
+            </Link>
+            <Link
+              to="/referral"
+              className={`${isActive('/referral')} hover:text-orange-600 transition-colors`}
             >
               Referral
-            </button>
+            </Link>
           </nav>
-          
+
           <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => setCurrentPage('cart')}
+            <Link
+              to="/cart"
               className="relative p-2 text-gray-700 hover:text-orange-600 transition-colors"
             >
               <ShoppingCart size={24} />
@@ -64,10 +64,10 @@ const { cartItems, currentPage, setCurrentPage, isMobileMenuOpen, setIsMobileMen
                   {cartItems.length}
                 </span>
               )}
-            </button>
-            
+            </Link>
+
             {/* Mobile Menu Button */}
-            <button 
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-gray-700"
             >
@@ -76,39 +76,49 @@ const { cartItems, currentPage, setCurrentPage, isMobileMenuOpen, setIsMobileMen
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100">
           <div className="px-4 py-2 space-y-1">
-            <button 
-              onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}
+            <Link
+              to="/"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-left py-2 text-gray-700 hover:text-orange-600"
             >
               Home
-            </button>
-            <button 
-              onClick={() => { setCurrentPage('shop'); setIsMobileMenuOpen(false); }}
+            </Link>
+            <Link
+              to="/shop"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-left py-2 text-gray-700 hover:text-orange-600"
             >
               Shop
-            </button>
-            <button 
-              onClick={() => { setCurrentPage('how-it-works'); setIsMobileMenuOpen(false); }}
+            </Link>
+            <Link
+              to="/how-it-works"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-left py-2 text-gray-700 hover:text-orange-600"
             >
               How It Works
-            </button>
-            <button 
-              onClick={() => { setCurrentPage('referral'); setIsMobileMenuOpen(false); }}
+            </Link>
+            <Link
+              to="/referral"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-left py-2 text-gray-700 hover:text-orange-600"
             >
               Referral
-            </button>
+            </Link>
+            <Link
+              to="/register"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block w-full text-left py-2 text-gray-700 hover:text-orange-600"
+            >
+              Register
+            </Link>
           </div>
         </div>
       )}
     </header>
   );
 };
-

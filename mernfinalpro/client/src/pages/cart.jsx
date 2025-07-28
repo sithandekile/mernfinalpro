@@ -11,11 +11,13 @@ export const Cart = () => {
     setCartItems(cartItems.filter(item => item.id !== productId));
   };
 
+
   const updateQuantity = (productId, quantity) => {
     if (quantity === 0) {
       removeFromCart(productId);
       return;
     }
+
     setCartItems(cartItems.map(item =>
       item.id === productId ? { ...item, quantity } : item
     ));
@@ -79,17 +81,17 @@ export const Cart = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
-              {cartItems.map(item => (
+              {cartItems?.map(item => (
                 <div key={item.id} className="p-6">
                   <div className="flex items-center">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item?.images?.[0]}
+                      alt={item?.title}
                       className="w-20 h-20 object-cover rounded-lg mr-4"
                     />
                     <div className="flex-grow">
-                      <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                      <p className="text-sm text-gray-600">{item.condition} condition</p>
+                      <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                      <p className="text-sm text-gray-600">{item?.condition} condition</p>
                       <div className="flex items-center mt-2">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -97,7 +99,7 @@ export const Cart = () => {
                         >
                           -
                         </button>
-                        <span className="mx-4 font-medium">{item.quantity}</span>
+                        <span className="mx-4 font-medium">{item?.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-50"

@@ -12,6 +12,7 @@ router.use(adminAuth);
 router.get('/products/pending', adminController.getPendingProducts);
 router.put('/products/:id/approve', adminController.approveProduct);
 router.put('/products/:id/reject', adminController.rejectProduct);
+router.delete('/products/:id', adminController.deleteProduct);
 router.get('/orders', adminController.getAllOrders);
 router.get('/stats', adminController.getDashboardStats);
 

@@ -1,18 +1,16 @@
 const User = require('../models/User');
 const Referral = require('../models/referral');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Generate token
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET || 'your-secret-key', {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: '30d'
   });
 };
 
-const userController = {
-  // ========== REGISTER ==========
-  register: async (req, res) => {
+const register = async (req, res) => {
     try {
       const {
         firstName,
@@ -22,6 +20,7 @@ const userController = {
         password,
         address,
         avatar,
+        role,
         referralCode
       } = req.body;
 
@@ -45,6 +44,7 @@ const userController = {
         phone,
         password: hashedPassword,
         address,
+        role,
         avatar
       });
 
@@ -104,8 +104,12 @@ const userController = {
         error: error.message
       });
     }
-  },
+  }
 
+
+const userController = {
+  // ========== REGISTER ==========
+ 
   // ========== LOGIN ==========
   login: async (req, res) => {
     try {
@@ -113,7 +117,7 @@ const userController = {
 
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(401).json({
+        return res.status(400).json({
           success: false,
           message: 'Invalid email or password'
         });
@@ -121,7 +125,7 @@ const userController = {
 
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
-        return res.status(401).json({
+        return res.status(400).json({
           success: false,
           message: 'Invalid email or password'
         });
@@ -224,4 +228,4 @@ const userController = {
   }
 };
 
-module.exports = userController;
+module.exports = {userController, register};

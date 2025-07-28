@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Edit3, Trash2, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import ProductForm from './productForm'; 
+import ProductForm from './productForm';
 import apiService from '../../services/api';
 import { CATEGORIES } from '../../constants/adminConstants';
-import StatusBadge from '../ui/StatusBadge'; 
-import Pagination from '../ui/pagination'; 
+import StatusBadge from '../ui/StatusBadge';
+import Pagination from '../ui/pagination';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -24,7 +24,7 @@ const ProductManagement = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getProducts({ 
+      const response = await apiService.getProducts({
         page: currentPage,
         category: categoryFilter !== 'all' ? categoryFilter : undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined
@@ -47,7 +47,7 @@ const ProductManagement = () => {
       if (editingProduct) {
         const response = await apiService.put(`/admin/products/${editingProduct._id}`, productData);
         if (response.success) {
-          setProducts(prev => prev.map(p => 
+          setProducts(prev => prev.map(p =>
             p._id === editingProduct._id ? { ...response.data, ...productData } : p
           ));
           alert('Product updated successfully!');
@@ -83,10 +83,25 @@ const ProductManagement = () => {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+  const handleApproveProduct = async (productId) => {
+    if (window.confirm('Are you sure you want to approve this product?')) {
+      try {
+        const response = await apiService.approveProduct(productId);
+        if (response.success) {
+          setProducts(prev => prev.filter(p => p._id !== productId));
+          alert('Product Approved successfully!');
+        }
+      } catch (error) {
+        console.error('Error approving product:', error);
+        alert(`Error approving product: ${error.message || 'Unknown error'}`);
+      }
+    }
+  }
+  // const filteredProducts = products.filter(product =>
+  //   product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   if (showForm) {
     return (
@@ -104,7 +119,7 @@ const ProductManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
       </div>
     );
   }
@@ -115,7 +130,7 @@ const ProductManagement = () => {
         <h2 className="text-2xl font-bold text-gray-900">Product Management</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add New Product
@@ -131,14 +146,14 @@ const ProductManagement = () => {
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
           />
         </div>
-        
+
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
         >
           <option value="all">All Categories</option>
           {CATEGORIES.map(cat => (
@@ -149,7 +164,7 @@ const ProductManagement = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -160,15 +175,15 @@ const ProductManagement = () => {
 
       {/* Products Grid */}
       <div className="grid gap-6">
-        {filteredProducts.map((product) => (
+        {products.map((product) => (
           <div key={product._id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
             <div className="p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Product Image */}
                 <div className="lg:w-48 flex-shrink-0">
                   <img
-                    src={product.images[0]?.url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'}
-                    alt={product.images[0]?.alt || product.name}
+                    src={product.images?.[0] || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'}
+                    // alt={product.images[0] || product.name}
                     className="w-full h-48 object-cover rounded-lg"
                   />
                 </div>
@@ -179,7 +194,7 @@ const ProductManagement = () => {
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
                       <div className="flex items-center space-x-3 mb-2">
-                        <span className="text-2xl font-bold text-green-600">${product.price}</span>
+                        <span className="text-2xl font-bold text-sky-600">${product.price}</span>
                         <StatusBadge status={product.condition} type="condition" />
                         <StatusBadge status={product.status} type="product" />
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full capitalize">
@@ -197,6 +212,15 @@ const ProductManagement = () => {
                       >
                         <Edit3 className="w-4 h-4 mr-1" />
                         Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleApproveProduct(product._id);
+                        }}
+                        className="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Approve
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(product._id)}
@@ -223,14 +247,14 @@ const ProductManagement = () => {
                     <div>
                       <span className="text-sm text-gray-600">Delivery:</span>
                       <div className="mt-1 space-x-1">
-                        {product.deliveryOptions.map((option) => (
+                        {/* {product.deliveryOptions?.map((option) => (
                           <span
                             key={option}
                             className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full capitalize"
                           >
                             {option.replace('-', ' ')}
                           </span>
-                        ))}
+                        ))} */}
                       </div>
                     </div>
                   </div>
@@ -241,7 +265,7 @@ const ProductManagement = () => {
         ))}
       </div>
 
-      {filteredProducts.length === 0 && (
+      {products.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg border">
           <Package className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No products found</h3>
@@ -251,7 +275,7 @@ const ProductManagement = () => {
           {!searchTerm && (
             <button
               onClick={() => setShowForm(true)}
-              className="mt-4 inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              className="mt-4 inline-flex items-center px-4 py-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Product
@@ -262,7 +286,7 @@ const ProductManagement = () => {
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={pagination.totalPages}
           onPageChange={setCurrentPage}
