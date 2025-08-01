@@ -140,15 +140,15 @@ const productController = {
   // Get featured/recommended products
   getFeaturedProducts: async (req, res) => {
     try {
-      const { limit = 6 } = req.query;
+      const { limit = 3} = req.query;
 
       const products = await Product.find({
         status: "approved",
         isVerified: true,
-        qualityScore: { $gte: 4 },
+        // qualityScore: { $gte: 4 },
       })
         .populate("seller", "firstName lastName rating")
-        .sort({ qualityScore: -1, views: -1 })
+        .sort({ views: -1 })
         .limit(Number(limit));
 
       res.json({
@@ -164,7 +164,7 @@ const productController = {
     }
   },
 
-  // Create new product (seller only)
+  // Create new product (admin only)
   createProduct: async (req, res) => {
     try {
       const { images, ...others } = req.body;

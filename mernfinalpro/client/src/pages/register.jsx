@@ -23,7 +23,7 @@ const Register = () => {
       if (user.role === 'admin') {
         navigate('/dashboard');
       } else {
-        navigate('/payment');
+        navigate('/checkout');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
@@ -34,7 +34,7 @@ const Register = () => {
     lastName: '',
     email: '',
     password: '',
-    role: 'admin',
+    role: 'user',
   }
 
   const { handleSubmit, values, handleChange, handleBlur } = useFormik({
@@ -91,7 +91,7 @@ const Register = () => {
             required
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
           />
-          <select
+          {/* <select
             name="role"
             value={values.role}
             onChange={handleChange}
@@ -100,7 +100,7 @@ const Register = () => {
           >
             <option value="user">User</option>
             <option value="admin">Admin</option>
-          </select>
+          </select> */}
 
           <button
             type="submit"

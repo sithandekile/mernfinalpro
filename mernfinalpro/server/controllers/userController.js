@@ -108,7 +108,6 @@ const register = async (req, res) => {
 
 
 const userController = {
-  // ========== REGISTER ==========
  
   // ========== LOGIN ==========
   login: async (req, res) => {

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Shield, Star, Truck, MapPin } from 'lucide-react';
 import apiService from '../services/api';
 import { useCart } from '../context/cartContext';
 
-export const ProductDetails = ({ productId }) => {
+export const ProductDetails = () => {
+  const { id: productId } = useParams(); // get the productId from the route
   const { onAddToCart, setCurrentPage } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,9 +15,9 @@ export const ProductDetails = ({ productId }) => {
     const fetchProduct = async () => {
       try {
         if (!productId) return;
-        const data = await apiService.getProduct(productId);
-        if (data) {
-          setProduct(data);
+        const response = await apiService.getProduct(productId);
+        if (response) {
+          setProduct(response.data);
           setNotFound(false);
         } else {
           setNotFound(true);
@@ -69,8 +71,8 @@ export const ProductDetails = ({ productId }) => {
             {/* Product Image */}
             <div className="relative">
               <img
-                src={product.image}
-                alt={product.name}
+                src={product.images}
+                alt={product.title}
                 className="w-full h-96 object-cover rounded-t-xl lg:rounded-none"
               />
               <div className="absolute top-4 left-4">
@@ -83,27 +85,27 @@ export const ProductDetails = ({ productId }) => {
 
             {/* Product Info */}
             <div className="p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
 
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
                   {product.condition}
                 </div>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <Star size={16} className="text-yellow-400 fill-current mr-1" />
                   <span className="text-sm text-gray-600">Quality Score: {product.qualityScore}/10</span>
-                </div>
-              </div>
-
-              <div className="mb-6">
+                </div>*/}
+              </div> 
+               <div className="mb-6">
                 <span className="text-3xl font-bold text-gray-900">${product.price}</span>
                 <span className="text-lg text-gray-500 line-through ml-3">${product.originalPrice}</span>
-                <div className="text-sm text-orange-600 mt-1">
-                  Save ${product.originalPrice - product.price} (
-                  {Math.round((1 - product.price / product.originalPrice) * 100)}% off)
-                </div>
+                {product.price != null && product.originalPrice != null && (
+                  <span className="block text-sm text-orange-600 mt-1">
+                    Save ${(product.originalPrice - product.price).toFixed(2)} (
+                    {Math.round((1 - product.price / product.originalPrice) * 100)}% off)
+                  </span>
+                )}
               </div>
-
               <p className="text-gray-600 mb-8">{product.description}</p>
 
               {/* Escrow Info */}

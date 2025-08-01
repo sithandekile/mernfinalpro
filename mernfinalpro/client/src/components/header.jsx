@@ -1,6 +1,7 @@
 import { ShoppingCart, Shield, Menu, X } from 'lucide-react';
 import { useCart } from '../context/cartContext';
 import { Link, useLocation } from 'react-router-dom';
+import LogoutButton from '../pages/logout';
 
 export const Header = () => {
   const { cartItems, isMobileMenuOpen, setIsMobileMenuOpen } = useCart();
@@ -8,6 +9,7 @@ export const Header = () => {
 
   const isActive = (path) =>
     location.pathname === path ? 'text-orange-600' : 'text-gray-700';
+  const token = localStorage.getItem('token'); // or get from apiService.getToken()
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
@@ -65,6 +67,9 @@ export const Header = () => {
                 </span>
               )}
             </Link>
+            <div>
+            {token && <LogoutButton />}
+          </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -116,6 +121,9 @@ export const Header = () => {
             >
               Register
             </Link>
+          </div>
+          <div>
+            {token && <LogoutButton />}
           </div>
         </div>
       )}

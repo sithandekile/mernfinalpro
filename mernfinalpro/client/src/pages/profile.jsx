@@ -1,116 +1,109 @@
-import React, { useState, useEffect } from 'react';
-// import apiService from '../path/to/api'; // <-- adjust this import path
+import React, { useEffect, useState } from 'react';
+import apiService from '../services/api';
 
 export const ProfilePage = () => {
   const [profile, setProfile] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
   });
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
 
-  // Fetch profile data on mount
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await apiService.getProfile();
-        setProfile({
-          fullName: data.fullName || '',
-          email: data.email || '',
-          phone: data.phone || '',
-        });
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load profile.');
-        setLoading(false);
-      }
-    };
+   const fetchProfile = async () => {
+  try {
+    const res = await apiService.getProfile();
+    
+    setProfile({
+      firstName: res.firstName || '',
+      lastName: res.lastName || '',
+      email: res.email || '',
+      phone: res.phone || '',
+    });
+  } catch (error) {
+    console.error('Failed to load profile:', error);
+    setMessage('Failed to load profile');
+  }
+};
+
 
     fetchProfile();
   }, []);
 
-  // Handle input changes
   const handleChange = (e) => {
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setProfile((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // Handle save button click
   const handleSave = async () => {
-    setSaving(true);
-    setError(null);
     try {
-      await apiService.updateProfile(profile);
-      alert('Profile updated successfully!');
-    } catch (err) {
-      setError('Failed to update profile.');
-    } finally {
-      setSaving(false);
+      const res = await apiService.updateProfile(profile);
+      setMessage('Profile updated successfully');
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      setMessage('Update failed');
     }
   };
 
-  if (loading) return <p className="p-8 text-center">Loading profile...</p>;
-  if (error) return <p className="p-8 text-center text-red-600">{error}</p>;
-
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Profile</h1>
+    <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+      <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              <input
-                name="fullName"
-                type="text"
-                value={profile.fullName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                name="email"
-                type="email"
-                value={profile.email}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-              <input
-                name="phone"
-                type="tel"
-                value={profile.phone}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className={`${
-                saving ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'
-              } text-white px-6 py-3 rounded-lg font-semibold transition-colors`}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-
-            {error && <p className="text-red-600 mt-4">{error}</p>}
-          </div>
-        </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium">First Name</label>
+        <input
+          name="firstName"
+          value={profile.firstName}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded"
+        />
       </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Last Name</label>
+        <input
+          name="lastName"
+          value={profile.lastName}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium">Email</label>
+        <input
+          name="email"
+          type="email"
+          value={profile.email}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium">Phone</label>
+        <input
+          name="phone"
+          value={profile.phone}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <button
+        onClick={handleSave}
+        className="bg-[#301934] text-white px-4 py-2 rounded hover:bg-purple-900"
+      >
+        Save Changes
+      </button>
+
+      {message && <p className="mt-4 text-sm text-red-500">{message}</p>}
     </div>
   );
 };
+

@@ -34,6 +34,7 @@ api.interceptors.response.use(
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('token');
+    this.user = JSON.parse(localStorage.getItem('user'));
   }
 
   setToken(token) {
@@ -43,6 +44,23 @@ class ApiService {
     } else {
       localStorage.removeItem('token');
     }
+  }
+
+  setUser(userData) {
+    this.user = userData;
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }
+
+  getCurrentUser() {
+    return this.user;
+  }
+
+  isAuthenticated() {
+    return !!this.token;
   }
 
   getHeaders(contentType = 'application/json') {
@@ -108,20 +126,35 @@ class ApiService {
     const response = await this.post('/users/login', credentials);
     if (response.success && response.data.token) {
       this.setToken(response.data.token);
+      this.setUser(response.data.user); // Save user info
     }
     return response;
   }
 
   async getProfile() {
-    return this.get('/users/profile');
+  const response = await this.get('/users/profile');
+  return response.data; 
+}
+
+
+  logout() {
+    this.setToken(null);
+    this.setUser(null);
   }
 
-  async updateProfile(profileData) {
-    return this.put('/users/profile', profileData);
+  getUserRole() {
+    if (!this.token) return null;
+    try {
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
+      return payload.role || 'user';
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
   }
 
-  async getStoreCredit() {
-    return this.get('/users/store-credit');
+  isAdmin() {
+    return this.getUserRole() === 'admin';
   }
 
   // ==== Products ====
@@ -137,7 +170,7 @@ class ApiService {
     return this.get('/products/featured', { limit });
   }
 
-  async getProductsByCategory(category, limit = 4) {
+  async getProductsByCategory(category, limit = 8) {
     return this.get(`/products/category/${category}`, { limit });
   }
 
@@ -185,7 +218,7 @@ class ApiService {
 
   // ==== Admin ====
   async getDashboardStats() {
-    return this.get('/admin/dashboard/stats');
+    return this.get('/admin/stats');
   }
 
   async getAllProducts(params = {}) {
@@ -227,32 +260,7 @@ class ApiService {
   async updateUserStatus(id, statusData) {
     return this.put(`/admin/users/${id}/status`, statusData);
   }
-
-  // ==== Utility ====
-  logout() {
-    this.setToken(null);
-  }
-
-  isAuthenticated() {
-    return !!this.token;
-  }
-
-  getUserRole() {
-    if (!this.token) return null;
-    try {
-      const payload = JSON.parse(atob(this.token.split('.')[1]));
-      return payload.role || 'user';
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return null;
-    }
-  }
-
-  isAdmin() {
-    return this.getUserRole() === 'admin';
-  }
 }
 
-// Export an instance
 const apiService = new ApiService();
 export default apiService;

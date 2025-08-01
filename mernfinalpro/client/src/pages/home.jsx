@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Shield, CheckCircle, Gift } from 'lucide-react';
 import { ProductCard } from '../components/productCard';
 import apiService from '../services/api';
 import { useCart } from '../context/cartContext';
 
 export const Homepage = () => {
-  const { setCurrentPage, onAddToCart } = useCart();
+  const { onAddToCart } = useCart();
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // React Router navigation
 
   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const response = await apiService.getFeaturedProducts(3);
-      setFeaturedProducts(response.data); // ✅ only the array
-      setError('');
-    } catch (err) {
-      setError(err.message || 'Failed to load featured products');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchProducts = async () => {
+      try {
+        const response = await apiService.getFeaturedProducts(6);
+        // If your API returns { success: true, data: [...] }
+        setFeaturedProducts(response.data || []); 
+        setError('');
+      } catch (err) {
+        setError(err.message || 'Failed to load featured products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchProducts();
-}, []);
-
+    fetchProducts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,7 +42,7 @@ export const Homepage = () => {
             Every product is admin-verified with quality ratings. Shop with confidence using our secure escrow system.
           </p>
           <button
-            onClick={() => setCurrentPage('shop')}
+            onClick={() => navigate('/shop')}
             className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors inline-flex items-center"
           >
             Browse Products
@@ -49,7 +51,7 @@ export const Homepage = () => {
         </div>
       </section>
 
-{/* Trust Indicators */}
+      {/* Trust Indicators */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -84,7 +86,7 @@ export const Homepage = () => {
           <h2 className="text-2xl font-bold text-white mb-4">Refer Friends, Earn Credits!</h2>
           <p className="text-orange-100 mb-6">Get $25 store credit for every friend who makes their first purchase.</p>
           <button
-            onClick={() => setCurrentPage('referral')}
+            onClick={() => navigate('/referral')}
             className="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
           >
             Learn More
@@ -104,18 +106,18 @@ export const Homepage = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredProducts.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={onAddToCart}
-                    onViewDetails={() => setCurrentPage(`product-${product.id}`)}
-                  />
-                ))}
+               {featuredProducts.map(product => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                  onViewDetails={(prod) => navigate(`/product/${prod._id}`)} 
+                />
+              ))}
               </div>
               <div className="text-center mt-12">
                 <button
-                  onClick={() => setCurrentPage('shop')}
+                  onClick={() => navigate('/shop')}
                   className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
                 >
                   View All Products
@@ -128,3 +130,4 @@ export const Homepage = () => {
     </div>
   );
 };
+

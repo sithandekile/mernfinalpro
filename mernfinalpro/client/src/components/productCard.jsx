@@ -15,8 +15,8 @@ export const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         <img
-          src={product.image}
-          alt={product.name}
+          src={product.images}
+          alt={product.title}
           className="w-full h-48 object-cover cursor-pointer"
           onClick={() => onViewDetails(product)}
         />
@@ -38,15 +38,15 @@ export const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
           className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-orange-600 transition-colors"
           onClick={() => onViewDetails(product)}
         >
-          {product.name}
+          {product.title}
         </h3>
 
-        <div className="flex items-center mb-2">
+        {/* <div className="flex items-center mb-2">
           <div className="flex items-center">
             <Star size={14} className="text-yellow-400 fill-current" />
             <span className="ml-1 text-sm text-gray-600">{product.qualityScore}</span>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center justify-between">
           <div>
@@ -62,7 +62,7 @@ export const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 

@@ -1,27 +1,66 @@
-import React from 'react';
-import { 
+
+import React, { useEffect, useState } from 'react';
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
-import { 
-  CheckCircle, Clock, Truck, ShoppingCart, 
-  Package, Users, DollarSign, TrendingUp 
+import {
+  CheckCircle, Clock, Truck, ShoppingCart,
+  Package, Users, DollarSign, TrendingUp
 } from 'lucide-react';
+import apiService from '../../services/api'; 
 
-const DashboardStats = ({ stats }) => {
-  if (!stats) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
-    </div>
-  );
+const DashboardStats = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Data for charts
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiService.getDashboardStats();
+        setStats(response.data); // Assumes the response is { success: true, data: { ... } }
+      } catch (err) {
+        setError('Failed to load dashboard stats.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64 text-red-500">
+        {error}
+      </div>
+    );
+  }
+
   const orderStatusData = [
-    { name: 'Completed', value: stats.overview.completedOrders, color: '#10B981' },
-    { name: 'Pending', value: stats.overview.totalOrders - stats.overview.completedOrders, color: '#F59E0B' }
+    {
+      name: 'Completed',
+      value: stats.overview.completedOrders,
+      color: '#10B981'
+    },
+    {
+      name: 'Pending',
+      value: stats.overview.totalOrders - stats.overview.completedOrders,
+      color: '#F59E0B'
+    }
   ];
 
-  // Mock monthly data - should eventually come from API
+  // Mock data (replace with API data if available)
   const monthlyData = [
     { month: 'Jan', revenue: 12000, orders: 45 },
     { month: 'Feb', revenue: 15000, orders: 52 },
@@ -31,7 +70,6 @@ const DashboardStats = ({ stats }) => {
     { month: 'Jun', revenue: 19200, orders: 67 }
   ];
 
-  // Overview card component
   const StatCard = ({ title, value, icon, trend }) => (
     <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="flex items-center justify-between">
@@ -52,7 +90,6 @@ const DashboardStats = ({ stats }) => {
     </div>
   );
 
-  // Recent activity item component
   const ActivityItem = ({ activity }) => {
     const statusConfig = {
       completed: { bg: 'bg-sky-100', icon: <CheckCircle className="w-5 h-5 text-sky-600" /> },
@@ -85,30 +122,30 @@ const DashboardStats = ({ stats }) => {
     <div className="space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Products" 
-          value={stats.overview.totalProducts} 
+        <StatCard
+          title="Total Products"
+          value={stats.overview.totalProducts}
           icon={<div className="bg-blue-50"><Package className="w-6 h-6 text-blue-600" /></div>}
           trend="+12% from last month"
         />
-        
-        <StatCard 
-          title="Total Orders" 
-          value={stats.overview.totalOrders} 
+
+        <StatCard
+          title="Total Orders"
+          value={stats.overview.totalOrders}
           icon={<div className="bg-sky-50"><ShoppingCart className="w-6 h-6 text-sky-600" /></div>}
           trend="+8% from last month"
         />
-        
-        <StatCard 
-          title="Total Users" 
-          value={stats.overview.totalUsers} 
+
+        <StatCard
+          title="Total Users"
+          value={stats.overview.totalUsers}
           icon={<div className="bg-purple-50"><Users className="w-6 h-6 text-purple-600" /></div>}
           trend="+15% from last month"
         />
-        
-        <StatCard 
-          title="Total Revenue" 
-          value={`$${stats.overview.totalRevenue.toLocaleString()}`} 
+
+        <StatCard
+          title="Total Revenue"
+          value={`$${stats.overview.totalRevenue.toLocaleString()}`}
           icon={<div className="bg-yellow-50"><DollarSign className="w-6 h-6 text-yellow-600" /></div>}
           trend="+22% from last month"
         />
@@ -130,7 +167,7 @@ const DashboardStats = ({ stats }) => {
           </ResponsiveContainer>
         </div>
 
-        {/* Order Status Distribution */}
+        {/* Order Status Chart */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Status Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>

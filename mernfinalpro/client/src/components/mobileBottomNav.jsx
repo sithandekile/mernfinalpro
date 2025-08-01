@@ -1,23 +1,43 @@
-import { ShoppingCart, Package, User,Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ShoppingCart, Package, User, Search } from 'lucide-react';
 import { useCart } from '../context/cartContext';
+import { useNavigate } from 'react-router-dom';
+import apiService from '../services/api';
+
+export const MobileBottomNav = () => {
+  const { cartItems } = useCart();
+  const navigate = useNavigate();
+   const [userName, setUserName] = useState('');
+useEffect(() => {
+  const fetchProfile = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await apiService.getProfile();
+      setUserName(res.firstName || 'User');
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
+  };
+
+  fetchProfile();
+}, []);
 
 
-// Mobile Bottom Navigation
-export const MobileBottomNav = ()=>{
-const { currentPage, setCurrentPage, cartItems } =useCart()
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="grid grid-cols-4 h-16">
-        <button 
-          onClick={() => setCurrentPage('shop')}
-          className={`flex flex-col items-center justify-center space-y-1 ${currentPage === 'shop' ? 'text-orange-600' : 'text-gray-500'}`}
+        <button
+          onClick={() => navigate('/shop')}
+          className="flex flex-col items-center justify-center space-y-1 text-gray-500"
         >
           <Search size={20} />
           <span className="text-xs">Browse</span>
         </button>
-        <button 
-          onClick={() => setCurrentPage('cart')}
-          className={`flex flex-col items-center justify-center space-y-1 relative ${currentPage === 'cart' ? 'text-orange-600' : 'text-gray-500'}`}
+        <button
+          onClick={() => navigate('/cart')}
+          className="flex flex-col items-center justify-center space-y-1 relative text-gray-500"
         >
           <ShoppingCart size={20} />
           {cartItems.length > 0 && (
@@ -27,25 +47,23 @@ const { currentPage, setCurrentPage, cartItems } =useCart()
           )}
           <span className="text-xs">Cart</span>
         </button>
-        <button 
-          onClick={() => setCurrentPage('orders')}
-          className={`flex flex-col items-center justify-center space-y-1 ${currentPage === 'orders' ? 'text-orange-600' : 'text-gray-500'}`}
+        <button
+          onClick={() => navigate('/orders')}
+          className="flex flex-col items-center justify-center space-y-1 text-gray-500"
         >
           <Package size={20} />
           <span className="text-xs">Orders</span>
         </button>
-        <button 
-          onClick={() => setCurrentPage('profile')}
-          className={`flex flex-col items-center justify-center space-y-1 ${currentPage === 'profile' ? 'text-orange-600' : 'text-gray-500'}`}
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex flex-col items-center justify-center space-y-1 text-gray-500"
         >
           <User size={20} />
           <span className="text-xs">Profile</span>
+          {/*lets show user's name below icon */}
+           <span className="text-[10px] text-gray-400">{userName}</span>  
         </button>
       </div>
     </div>
   );
 };
-
-
-
-

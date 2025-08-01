@@ -1,16 +1,18 @@
+
 import { ShoppingCart, Shield } from 'lucide-react';
 import { useCart } from '../context/cartContext.jsx';
-import apiService from '../services/api'; 
+import apiService from '../services/api';  // Only import apiService now
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Cart = () => {
   const { cartItems, setCartItems, setCurrentPage } = useCart();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const removeFromCart = (productId) => {
     setCartItems(cartItems.filter(item => item.id !== productId));
   };
-
 
   const updateQuantity = (productId, quantity) => {
     if (quantity === 0) {
@@ -28,6 +30,14 @@ export const Cart = () => {
   const total = subtotal + deliveryFee;
 
   const handleProceedToCheckout = async () => {
+    if (!apiService.isAuthenticated()) {
+      alert("Please log in or register before checking out.");
+      navigate('/login');
+      return;
+    }else {
+    navigate('/checkout');
+  }
+
     setLoading(true);
     try {
       const orderPayload = {
@@ -82,7 +92,7 @@ export const Cart = () => {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
               {cartItems?.map(item => (
-                <div key={item.id} className="p-6">
+                <div key={item.id || item._id} className="p-6">
                   <div className="flex items-center">
                     <img
                       src={item?.images?.[0]}

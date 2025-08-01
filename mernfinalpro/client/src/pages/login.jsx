@@ -7,16 +7,20 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const onSubmit = async () => {
+  const onSubmit = async (values) => {
     try {
       const res = await apiService.post('/users/login', values);
       const { token, user } = res.data;
+
+      // console.log('Login response:', res.data); // ✅ Debug output
+      // console.log('User role:', user.role);     // ✅ Should show "user" or "admin"
+
       localStorage.setItem('token', token);
 
       if (user.role === 'admin') {
         navigate('/dashboard');
       } else {
-        navigate('/payment');
+        navigate('/checkout');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -24,23 +28,19 @@ const Login = () => {
   };
 
   const initialValues = {
-     email: '',
-    password: ''
-  }
-
-
+    email: '',
+    password: '',
+  };
 
   const { handleSubmit, values, handleChange, handleBlur } = useFormik({
-    initialValues: initialValues,
-    onSubmit: onSubmit,
-  })
-
-
+    initialValues,
+    onSubmit,
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Welcom Back!</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Welcome Back!</h2>
 
         {error && <p className="text-red-500 mb-4 text-sm text-center">{error}</p>}
 
@@ -50,6 +50,8 @@ const Login = () => {
             name="email"
             placeholder="Email"
             onChange={handleChange}
+            onBlur={handleBlur}
+            value={values.email} // ✅ Formik binding
             required
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
           />
@@ -58,6 +60,8 @@ const Login = () => {
             name="password"
             placeholder="Password"
             onChange={handleChange}
+            onBlur={handleBlur}
+            value={values.password} // ✅ Formik binding
             required
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
           />
