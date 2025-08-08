@@ -95,7 +95,7 @@ const orderController = {
       }
 
       const orders = await Order.find(filter)
-        .populate('product', 'name price images category')
+        .populate('product', 'title price images category')
         .populate('buyer', 'firstName lastName')
         .populate('seller', 'firstName lastName')
         .sort({ createdAt: -1 })

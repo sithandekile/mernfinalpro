@@ -10,19 +10,21 @@ export function CartProvider({ children }) {
   const [productId, setProductId] = useState(null);
 
   const onAddToCart = (product) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
+  setCartItems(prevItems => {
+    const existingItem = prevItems.find(item => item._id === product._id);
     if (existingItem) {
-      setCartItems(cartItems.map(item => 
-        item.id === product.id 
+      return prevItems.map(item =>
+        item._id === product._id
           ? { ...item, quantity: item.quantity + 1 }
           : item
-      ));
+      );
     } else {
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+      return [...prevItems, { ...product, quantity: 1 }];
     }
-    alert('Added to cart!');
-  };
+  });
 
+  alert('Added to cart!');
+};
   return (
     <CartContext.Provider value={{
       cartItems,

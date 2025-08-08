@@ -11,7 +11,7 @@ export const OrdersPage = () => {
     const fetchOrders = async () => {
       try {
         const data = await apiService.getUserOrders();
-        setOrders(data.orders || []); // Adjust based on actual API response
+        setOrders(data.orders || []); 
       } catch (err) {
         setError(err.message || 'Failed to load orders.');
       } finally {

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Gift, User, CheckCircle } from 'lucide-react';
-// import apiService from '../path/to/api'; // Adjust this path
+import { Gift, User, CheckCircle } from 'lucide-react'; 
+import apiService from '../services/api'; // Adjust this path
 
 export const ReferralProgram = () => {
-  // Generate initial referral code (could come from user profile/API in real app)
   const [referralCode, setReferralCode] = useState('SAFE' + Math.random().toString(36).substr(2, 6).toUpperCase());
 
   // Referral stats from API
@@ -27,8 +26,6 @@ export const ReferralProgram = () => {
       setError(null);
       try {
         const data = await apiService.getReferralStats();
-        // Assume data structure from API:
-        // { successfulReferrals: number, creditsEarned: number, availableBalance: number }
         setStats({
           successfulReferrals: data.successfulReferrals || 0,
           creditsEarned: data.creditsEarned || 0,
@@ -60,7 +57,7 @@ export const ReferralProgram = () => {
     setApplyError(null);
     setApplySuccess(null);
     try {
-      // You might want to send { code: inputCode } or similar depending on your backend API
+      // sending { code: inputCode }
       await apiService.applyReferralCode({ code: inputCode });
       setApplySuccess('Referral code applied successfully!');
       setInputCode('');

@@ -12,9 +12,6 @@ const Login = () => {
       const res = await apiService.post('/users/login', values);
       const { token, user } = res.data;
 
-      // console.log('Login response:', res.data); // ✅ Debug output
-      // console.log('User role:', user.role);     // ✅ Should show "user" or "admin"
-
       localStorage.setItem('token', token);
 
       if (user.role === 'admin') {
@@ -51,7 +48,7 @@ const Login = () => {
             placeholder="Email"
             onChange={handleChange}
             onBlur={handleBlur}
-            value={values.email} // ✅ Formik binding
+            value={values.email} 
             required
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
           />
@@ -61,7 +58,7 @@ const Login = () => {
             placeholder="Password"
             onChange={handleChange}
             onBlur={handleBlur}
-            value={values.password} // ✅ Formik binding
+            value={values.password} 
             required
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
           />

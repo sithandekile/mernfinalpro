@@ -260,6 +260,19 @@ class ApiService {
   async updateUserStatus(id, statusData) {
     return this.put(`/admin/users/${id}/status`, statusData);
   }
+  // ==== Payment ====
+async createPaymentIntent(amount, orderId) {
+  return this.post('/payment/create-payment-intent', { amount, orderId });
+}
+
+async capturePayment(paymentIntentId) {
+  return this.post('/payment/capture-payment', { paymentIntentId });
+}
+
+async refundPayment(paymentIntentId, amount) {
+  return this.post('/payment/refund-payment', { paymentIntentId, amount });
+}
+
 }
 
 const apiService = new ApiService();

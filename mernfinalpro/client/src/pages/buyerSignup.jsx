@@ -1,12 +1,12 @@
-// pages/BuyerSignup.jsx
-import Register from '../components/register';
+// // pages/BuyerSignup.jsx
+// import Register from '../components/register';
 
-const BuyerSignup = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Register defaultRole="buyer" />
-    </div>
-  );
-};
+// const BuyerSignup = () => {
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+//       <Register defaultRole="user" />
+//     </div>
+//   );
+// };
 
-export default BuyerSignup;
+// export default BuyerSignup;

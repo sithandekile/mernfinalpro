@@ -1,12 +1,12 @@
 // server.js
 const express = require("express");
-const mongoose = require("mongoose");
+const consola=require('consola')
 const cors = require("cors");
-const bodyParser = require("body-parser");
-const consola = require("consola");
+// const bodyParser = require("body-parser");
 
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
+const connectDB=require('./config/db')
 require("dotenv").config();
 
 // // Import routes
@@ -15,6 +15,14 @@ const orderRoutes = require("./routes/ordersRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const referralRoutes = require("./routes/refRoutes");
+// const paymentRoutes = require('./routes/payment');
+
+// Allowed frontend origins
+const allowedOrigins = [
+  'http://localhost:5173', // Dev
+  '' // Prod
+];
+
 
 const app = express();
 app.use(express.json({
@@ -31,7 +39,20 @@ app.use(compression());
 // );
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    console.log(`API Origin: ${origin}`);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(`API Blocked by CORS: ${origin}`);
+      callback(new Error("Not allowed by CORS (REST API)"));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -41,22 +62,8 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // MongoDB connection
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then((result) =>
-    consola.success({ message: "Database Connected", badge: true })
-  )
-  .catch((err) =>
-    consola.error({
-      message: "Unable to connect to database.",
-      badge: true,
-    })
-  );
-
-// // Health check endpoint
+connectDB()
+ // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
@@ -67,6 +74,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/referrals", referralRoutes);
+// app.use('/api/payment', paymentRoutes);
 
 // Error handling middleware
 app.use((error, req, res, next) => {

@@ -140,7 +140,7 @@ const productController = {
   // Get featured/recommended products
   getFeaturedProducts: async (req, res) => {
     try {
-      const { limit = 3} = req.query;
+      const { limit = 6} = req.query;
 
       const products = await Product.find({
         status: "approved",

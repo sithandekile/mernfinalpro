@@ -1,7 +1,7 @@
 
 import { ShoppingCart, Shield } from 'lucide-react';
 import { useCart } from '../context/cartContext.jsx';
-import apiService from '../services/api';  // Only import apiService now
+import apiService from '../services/api'; 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

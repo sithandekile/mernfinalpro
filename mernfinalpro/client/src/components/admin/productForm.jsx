@@ -4,12 +4,12 @@ import { CATEGORIES, CONDITIONS, DELIVERY_OPTIONS } from '../../constants/adminC
 
 const ProductForm = ({ product, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    title: product?.name || '',
+    title: product?.title || '',
     description: product?.description || '',
     price: product?.price || '',
     category: product?.category || '',
     condition: product?.condition || 'good',
-    deliveryOptions: product?.deliveryOptions || ['pickup'],
+    deliveryOptions: Array.isArray(product?.deliveryOptions) ? product.deliveryOptions : ['pickup'],
     stock: product?.stock || 1,
   });
 

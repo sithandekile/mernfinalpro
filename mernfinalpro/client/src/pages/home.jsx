@@ -10,13 +10,12 @@ export const Homepage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate = useNavigate(); // React Router navigation
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await apiService.getFeaturedProducts(6);
-        // If your API returns { success: true, data: [...] }
         setFeaturedProducts(response.data || []); 
         setError('');
       } catch (err) {

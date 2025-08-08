@@ -45,7 +45,7 @@ const ProductManagement = () => {
   const handleSaveProduct = async (productData) => {
     try {
       if (editingProduct) {
-        const response = await apiService.put(`/admin/products/${editingProduct._id}`, productData);
+        const response = await apiService.updateProduct(`${editingProduct._id}`, productData);
         if (response.success) {
           setProducts(prev => prev.map(p =>
             p._id === editingProduct._id ? { ...response.data, ...productData } : p
@@ -99,7 +99,7 @@ const ProductManagement = () => {
     }
   }
   // const filteredProducts = products.filter(product =>
-  //   product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
   //   product.category.toLowerCase().includes(searchTerm.toLowerCase())
   // );
 
@@ -183,7 +183,7 @@ const ProductManagement = () => {
                 <div className="lg:w-48 flex-shrink-0">
                   <img
                     src={product.images?.[0] || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400'}
-                    // alt={product.images[0] || product.name}
+                    // alt={product.images[0] || product.title}
                     className="w-full h-48 object-cover rounded-lg"
                   />
                 </div>
@@ -252,7 +252,6 @@ const ProductManagement = () => {
                             key={option}
                             className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full capitalize"
                           >
-                            {option.replace('-', ' ')}
                           </span>
                         ))} */}
                       </div>

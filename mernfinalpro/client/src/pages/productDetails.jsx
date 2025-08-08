@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { Shield, Star, Truck, MapPin } from 'lucide-react';
 import apiService from '../services/api';
 import { useCart } from '../context/cartContext';
 
 export const ProductDetails = () => {
-  const { id: productId } = useParams(); // get the productId from the route
+  const { id: productId } = useParams(); 
   const { onAddToCart, setCurrentPage } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
+  const navigate=useNavigate();
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -47,7 +47,7 @@ export const ProductDetails = () => {
         <h1 className="text-2xl font-bold text-gray-700 mb-4">Product Not Found</h1>
         <p className="text-gray-500 mb-6">The product you are looking for might have been removed.</p>
         <button
-          onClick={() => setCurrentPage('shop')}
+          onClick={() => navigate('/shop')}
           className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg transition"
         >
           ← Back to Shop
@@ -60,7 +60,7 @@ export const ProductDetails = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
-          onClick={() => setCurrentPage('shop')}
+          onClick={() => navigate('/shop')}
           className="text-orange-600 hover:text-orange-700 mb-6 inline-flex items-center"
         >
           ← Back to Shop

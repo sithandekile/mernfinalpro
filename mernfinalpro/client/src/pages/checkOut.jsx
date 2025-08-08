@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useCart } from '../context/cartContext.jsx';
-// import apiService from '../path/to/api'; // <-- adjust this import path accordingly
+import { useCart } from '../context/cartContext.jsx'; 
+import apiService from '../services/api';
 
 export const Checkout = () => {
   const { cartItems, setCartItems, setCurrentPage } = useCart();
@@ -22,8 +22,8 @@ export const Checkout = () => {
     e.preventDefault();
     setProcessing(true);
     try {
-      // Call your apiService's method to process payment/order creation
-      // If you don't have processPayment defined, see note below to add it.
+      // Call apiService's method to process payment/order creation
+      //
       const result = await apiService.processPayment({
         items: cartItems,
         deliveryOption,
@@ -182,14 +182,14 @@ export const Checkout = () => {
 
               <div className="space-y-4 mb-6">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center">
+                  <div key={item.id || item._id} className="flex items-center">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.images}
+                      alt={item.title}
                       className="w-12 h-12 object-cover rounded-lg mr-3"
                     />
                     <div className="flex-grow">
-                      <div className="font-medium text-sm">{item.name}</div>
+                      <div className="font-medium text-sm">{item.title}</div>
                       <div className="text-xs text-gray-600">Qty: {item.quantity}</div>
                     </div>
                     <div className="font-medium">${item.price * item.quantity}</div>
