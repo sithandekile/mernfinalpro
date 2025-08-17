@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 
 export const MobileBottomNav = () => {
-  const { cartItems } = useCart();
+  const { cartItems, fetchAndAddToCart} = useCart();
   const navigate = useNavigate();
    const [userName, setUserName] = useState('');
 useEffect(() => {
@@ -52,7 +52,7 @@ useEffect(() => {
           className="flex flex-col items-center justify-center space-y-1 text-gray-500"
         >
           <Package size={20} />
-          <span className="text-xs">Orders</span>
+          <span onClick={() => fetchAndAddToCart(product._id)}className="text-xs">Orders</span>
         </button>
         <button
           onClick={() => navigate('/profile')}
