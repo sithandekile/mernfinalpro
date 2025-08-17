@@ -1,39 +1,21 @@
-// // routes/payment.js
-// const express = require('express');
-// const router = express.Router();
-// const EscrowService = require('../utils/escrowService');
+const express = require('express');
+const router = express.Router();
+const paymentController = require('../controllers/paymentController');
+const { authenticate } = require('../middleware/auth');
 
-// router.post('/create-payment-intent', async (req, res) => {
-//   const { amount, orderId } = req.body;
+// Apply authentication to all payment routes
+router.use(authenticate);
 
-//   try {
-//     const paymentIntent = await EscrowService.createPaymentIntent(amount, orderId);
-//     res.status(200).json({ clientSecret: paymentIntent.client_secret });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
+// Create a payment record manually (optional)
+router.post('/create', paymentController.createPaymentRecord);
 
-// router.post('/capture-payment', async (req, res) => {
-//   const { paymentIntentId } = req.body;
+// Initialize a payment with Paystack (frontend calls this)
+router.post('/init', paymentController.initPayment);
 
-//   try {
-//     const paymentIntent = await EscrowService.capturePayment(paymentIntentId);
-//     res.status(200).json({ success: true, paymentIntent });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
+// Verify payment after transaction is completed
+router.get('/verify/:reference', paymentController.verifyPayment);
 
-// router.post('/refund-payment', async (req, res) => {
-//   const { paymentIntentId, amount } = req.body;
+// Release payment to seller manually
+router.post('/release/:id', paymentController.releasePayment);
 
-//   try {
-//     const refund = await EscrowService.refundPayment(paymentIntentId, amount);
-//     res.status(200).json({ success: true, refund });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// module.exports = router;
+module.exports = router;
