@@ -66,7 +66,7 @@ exports.initPayment = async (req, res) => {
       amount: Math.round(amount), // smallest unit
       currency,
       reference,
-      callback_url: 'https://localhost:5173/verify-payment', // change to your frontend URL
+      callback_url: 'https://localhost:5173/verify-payment', 
       metadata: { orderId }
     };
 
