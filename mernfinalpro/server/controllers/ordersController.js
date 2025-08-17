@@ -60,7 +60,7 @@ const orderController = {
       let deliveryFee = 0;
 
       if (deliveryOption === 'local-delivery') {
-        deliveryFee = 15; // example flat delivery fee
+        deliveryFee = 15; //  flat delivery fee
       }
 
       for (const item of items) {
@@ -84,7 +84,7 @@ const orderController = {
         notes,
         escrowStatus: 'pending',
         status: 'pending',
-        orderNumber: generateOrderNumber() // <-- added orderNumber
+        orderNumber: generateOrderNumber() 
       });
 
       await order.save();
