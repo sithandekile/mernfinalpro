@@ -1,7 +1,6 @@
-
 import { ShoppingCart, Shield } from 'lucide-react';
 import { useCart } from '../context/cartContext.jsx';
-import apiService from '../services/api'; 
+import apiService from '../services/api';  
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,7 +10,7 @@ export const Cart = () => {
   const navigate = useNavigate();
 
   const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter(item => item.id !== productId));
+    setCartItems(cartItems.filter(item => item._id !== productId));
   };
 
   const updateQuantity = (productId, quantity) => {
@@ -21,7 +20,7 @@ export const Cart = () => {
     }
 
     setCartItems(cartItems.map(item =>
-      item.id === productId ? { ...item, quantity } : item
+      item._id === productId ? { ...item, quantity } : item
     ));
   };
 
@@ -29,40 +28,43 @@ export const Cart = () => {
   const deliveryFee = cartItems.length > 0 ? 15 : 0;
   const total = subtotal + deliveryFee;
 
-  const handleProceedToCheckout = async () => {
-    if (!apiService.isAuthenticated()) {
-      alert("Please log in or register before checking out.");
-      navigate('/login');
-      return;
-    }else {
-    navigate('/checkout');
+const handleProceedToCheckout = async () => {
+  if (!apiService.isAuthenticated()) {
+    alert("Please log in or register before checking out.");
+    navigate('/login');
+    return;
   }
 
-    setLoading(true);
-    try {
-      const orderPayload = {
-        items: cartItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity
-        })),
-        subtotal,
-        deliveryFee,
-        total,
-        deliveryMethod: 'delivery'
-      };
+  setLoading(true);
+  try {
+    const orderPayload = {
+      items: cartItems.map(item => ({
+        id: item._id,       // map _id to id for backend
+        quantity: item.quantity,
+        price: item.price
+      })),
+      subtotal: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      deliveryFee: cartItems.length > 0 ? 15 : 0,
+      total: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + (cartItems.length > 0 ? 15 : 0),
+      deliveryOption: 'local-delivery',  // adjust if you have multiple options
+      deliveryAddress: '123 Main St',    // replace with actual address input
+      notes: ''
+    };
 
-      const response = await apiService.createOrder(orderPayload);
-      console.log('Order created:', response);
+     console.log("Sending order payload:", JSON.stringify(orderPayload, null, 2));
 
-      setCurrentPage('checkout');
-    } catch (error) {
-      console.error('Failed to create order:', error);
-      alert('Something went wrong while creating your order.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const response = await apiService.createOrder(orderPayload);
+    console.log('Order created:', response);
 
+    setCurrentPage('checkout');
+    navigate('/checkout');
+  } catch (error) {
+    console.error('Failed to create order:', error);
+    alert('Something went wrong while creating your order.');
+  } finally {
+    setLoading(false);
+  }
+};
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 pb-20">
@@ -92,7 +94,7 @@ export const Cart = () => {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
               {cartItems?.map(item => (
-                <div key={item.id || item._id} className="p-6">
+                <div key={item._id} className="p-6">
                   <div className="flex items-center">
                     <img
                       src={item?.images?.[0]}
@@ -104,14 +106,14 @@ export const Cart = () => {
                       <p className="text-sm text-gray-600">{item?.condition} condition</p>
                       <div className="flex items-center mt-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
                           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-50"
                         >
                           -
                         </button>
                         <span className="mx-4 font-medium">{item?.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
                           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-50"
                         >
                           +
@@ -121,7 +123,7 @@ export const Cart = () => {
                     <div className="text-right">
                       <div className="font-bold text-lg">${item.price * item.quantity}</div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item._id)}
                         className="text-red-500 hover:text-red-700 text-sm mt-2"
                       >
                         Remove

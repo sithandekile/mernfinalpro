@@ -1,67 +1,96 @@
-// CONTROLLERS/ORDERCONTROLLER.JS 
 const Order = require('../models/orders');
 const Product = require('../models/products');
 const User = require('../models/User');
 
+// Helper function to generate a unique order number
+const generateOrderNumber = () => {
+  // Format: ORD + timestamp + random 3-digit number
+  return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+};
+
 const orderController = {
+
   // Create new order
   createOrder: async (req, res) => {
     try {
-      const { productId, deliveryOption, deliveryAddress, notes } = req.body;
+      const { items, deliveryOption, deliveryAddress, notes } = req.body;
       const buyerId = req.user.id;
 
-      // Get product details
-      const product = await Product.findById(productId).populate('seller');
-      
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: 'Product not found'
-        });
-      }
-
-      if (product.status !== 'approved') {
+      if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({
           success: false,
-          message: 'Product is not available for purchase'
+          message: 'No items provided for the order'
         });
       }
 
-      if (product.seller._id.toString() === buyerId) {
-        return res.status(400).json({
-          success: false,
-          message: 'Cannot buy your own product'
-        });
+      // Validate each product
+      for (const item of items) {
+        if (!item.id || !item.quantity || item.quantity < 1) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid product item or quantity'
+          });
+        }
+
+        const product = await Product.findById(item.id).populate('seller');
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: `Product not found: ${item.id}`
+          });
+        }
+
+        if (product.status !== 'approved') {
+          return res.status(400).json({
+            success: false,
+            message: `Product not available: ${product.title}`
+          });
+        }
+
+        if (product.seller._id.toString() === buyerId) {
+          return res.status(400).json({
+            success: false,
+            message: 'Cannot buy your own product'
+          });
+        }
       }
 
-      // Calculate total amount
-      let totalAmount = product.price;
+      // Calculate total amount and delivery fee
+      let totalAmount = 0;
       let deliveryFee = 0;
 
       if (deliveryOption === 'local-delivery') {
-        deliveryFee = product.deliveryFee || 10
-        totalAmount += deliveryFee;
+        deliveryFee = 15; // example flat delivery fee
       }
 
-      // Create order
+      for (const item of items) {
+        totalAmount += item.price * item.quantity;
+      }
+      totalAmount += deliveryFee;
+
+      const orderItems = items.map(item => ({
+        product: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }));
+
       const order = new Order({
         buyer: buyerId,
-        seller: product.seller._id,
-        product: productId,
-        totalAmount,
+        items: orderItems,
         deliveryOption,
         deliveryAddress: deliveryOption === 'local-delivery' ? deliveryAddress : undefined,
         deliveryFee,
+        totalAmount,
         notes,
-        escrowStatus: 'pending'
+        escrowStatus: 'pending',
+        status: 'pending',
+        orderNumber: generateOrderNumber() // <-- added orderNumber
       });
 
       await order.save();
 
-      // Populate order details for response
       const populatedOrder = await Order.findById(order._id)
-        .populate('product', 'name price images')
-        .populate('seller', 'firstName lastName phone')
+        .populate('items.product', 'title price images')
         .populate('buyer', 'firstName lastName phone email');
 
       res.status(201).json({
@@ -70,7 +99,8 @@ const orderController = {
         data: populatedOrder
       });
     } catch (error) {
-      res.status(400).json({
+      console.error('Order creation error:', error);
+      res.status(500).json({
         success: false,
         message: 'Error creating order',
         error: error.message
@@ -95,7 +125,7 @@ const orderController = {
       }
 
       const orders = await Order.find(filter)
-        .populate('product', 'title price images category')
+        .populate('items.product', 'title price images category')
         .populate('buyer', 'firstName lastName')
         .populate('seller', 'firstName lastName')
         .sort({ createdAt: -1 })
@@ -126,7 +156,7 @@ const orderController = {
   getOrderById: async (req, res) => {
     try {
       const order = await Order.findById(req.params.id)
-        .populate('product')
+        .populate('items.product', 'title price images category')
         .populate('buyer', 'firstName lastName email phone')
         .populate('seller', 'firstName lastName email phone');
 
@@ -183,7 +213,7 @@ const orderController = {
         });
       }
 
-      order.orderStatus = status;
+      order.status = status;
       if (notes) order.notes = notes;
 
       // Add tracking update
@@ -231,7 +261,7 @@ const orderController = {
         });
       }
 
-      if (order.orderStatus !== 'delivered') {
+      if (order.status !== 'delivered') {
         return res.status(400).json({
           success: false,
           message: 'Order must be marked as delivered first'
@@ -240,7 +270,7 @@ const orderController = {
 
       order.deliveryConfirmedAt = new Date();
       order.deliveryConfirmedBy = 'buyer';
-      order.orderStatus = 'completed';
+      order.status = 'completed';
       order.escrowStatus = 'released';
 
       // Add tracking update
@@ -252,8 +282,10 @@ const orderController = {
 
       await order.save();
 
-      // Update product status to sold
-      await Product.findByIdAndUpdate(order.product, { status: 'sold' });
+      // Update products status to sold
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, { status: 'sold' });
+      }
 
       res.json({
         success: true,

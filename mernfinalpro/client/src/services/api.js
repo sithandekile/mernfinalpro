@@ -132,10 +132,9 @@ class ApiService {
   }
 
   async getProfile() {
-  const response = await this.get('/users/profile');
-  return response.data; 
-}
-
+    const response = await this.get('/users/profile');
+    return response.data;
+  }
 
   logout() {
     this.setToken(null);
@@ -260,19 +259,23 @@ class ApiService {
   async updateUserStatus(id, statusData) {
     return this.put(`/admin/users/${id}/status`, statusData);
   }
-  // ==== Payment ====
-async createPaymentIntent(amount, orderId) {
-  return this.post('/payment/create-payment-intent', { amount, orderId });
-}
 
-async capturePayment(paymentIntentId) {
-  return this.post('/payment/capture-payment', { paymentIntentId });
-}
+  // ==== Payments ====
+  async initPayment(paymentData) {
+    return this.post('/payments/init', paymentData);
+  }
 
-async refundPayment(paymentIntentId, amount) {
-  return this.post('/payment/refund-payment', { paymentIntentId, amount });
-}
+  async createPaymentRecord(paymentData) {
+    return this.post('/payments/create', paymentData);
+  }
 
+  async verifyPayment(reference) {
+    return this.get(`/payments/verify/${reference}`);
+  }
+
+  async releasePayment(paymentId) {
+    return this.post(`/payments/release/${paymentId}`);
+  }
 }
 
 const apiService = new ApiService();

@@ -15,7 +15,7 @@ const orderRoutes = require("./routes/ordersRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const referralRoutes = require("./routes/refRoutes");
-// const paymentRoutes = require('./routes/payment');
+ const paymentRoutes = require('./routes/payment');
 
 // Allowed frontend origins
 const allowedOrigins = [
@@ -74,7 +74,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/referrals", referralRoutes);
-// app.use('/api/payment', paymentRoutes);
+ app.use('/api/payments', paymentRoutes);
 
 // Error handling middleware
 app.use((error, req, res, next) => {
