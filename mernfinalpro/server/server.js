@@ -1,6 +1,7 @@
 // server.js
 require('dotenv').config();
 const express = require("express");
+const mongoose=require('mongoose')
 const consola=require('consola')
 const cors = require("cors");
 // const bodyParser = require("body-parser");
@@ -20,7 +21,7 @@ const referralRoutes = require("./routes/refRoutes");
 // Allowed frontend origins
 const allowedOrigins = [
   'http://localhost:5173', // Dev
-  '' // Prod
+  'https://safe-swap-pre-loved-goods.vercel.app/' // Prod
 ];
 
 
@@ -62,7 +63,17 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // MongoDB connection
-connectDB()
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then((result) =>
+    consola.success({ message: "Database Connected", badge: true })
+  )
+  .catch((err) =>
+    consola.error({
+      message: "Unable to connect to database.",
+      badge: true,
+    })
+  );
  // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
