@@ -8,7 +8,6 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
 const connectDB=require('./config/db')
-require("dotenv").config();
 
 // // Import routes
 const productRoutes = require("./routes/productRoutes");
